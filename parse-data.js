@@ -15,7 +15,7 @@ firebase.initializeApp(config);
 let value;
 firebase
   .database()
-  .ref(`/`)
+  .ref(`/Non-Deleon listings/`)
   .once("value", snapshot => {
     value = JSON.stringify(snapshot.val());
   })

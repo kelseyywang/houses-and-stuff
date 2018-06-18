@@ -13,7 +13,6 @@ let config = {
 firebase.initializeApp(config);
 let spawn = require("child_process").spawn,
   py = spawn("python", ["run_scraper.py"]),
-  // data = [1, 2, 3, 4, 5, 6, 7, 8],
   dataString = "";
 
 py.stdout.on("data", function(data) {
@@ -22,10 +21,14 @@ py.stdout.on("data", function(data) {
 
 py.stdout.on("end", function() {
   console.log("Data scraped =", dataString);
-  let updates = JSON.parse(dataString);
+  let deleonUpdates = {};
+  dataJson = JSON.parse(dataString);
+  for (let key in dataJson) {
+    deleonUpdates[`Deleon listings/${key}`] = dataJson[key];
+  }
   firebase
     .database()
     .ref()
-    .update(updates);
+    .update(deleonUpdates);
 });
 py.stdin.end();
