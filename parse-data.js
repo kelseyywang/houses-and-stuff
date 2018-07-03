@@ -24,7 +24,6 @@ firebase
       py = spawn("python", ["play_with_data.py"]),
       data = value,
       dataString = "";
-
     py.stdout.on("data", function(data) {
       dataString += data;
     });

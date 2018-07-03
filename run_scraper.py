@@ -78,47 +78,43 @@ def scrape_deleon():
         url_address = re.sub('[^0-9a-zA-Z]+', '-', address)
         house_url = "https://deleonrealty.com/property/" + url_address
         deleon_houses_url_arr.append([house_url, url_address, subtitle])
-    count = -1
     for house_info in deleon_houses_url_arr:
-        count += 1
-        if count >=35 and count < 60:
-            house_map = {}
-            house_url=house_info[0]
-            house_key=house_info[1]
-            house_subtitle=house_info[2]
-            house_map["status or price"] = house_subtitle
-            r = requests.get(house_url)
-            data = r.text
-            soup = BeautifulSoup(data, "html.parser")
-            for i in range(1, MAX_TABS):
-                potential_tab = soup.find("div", {"id": "tab-id-" + str(i) + "-container"})
-                if potential_tab is None:
-                    break
-                tab_title = soup.find("div", {"data-fake-id": "#tab-id-"+str(i)}).contents[0]
-                children = potential_tab.find_all("p")
-                children += potential_tab.find_all("li")
-                child_contents = ""
-                for child in children:
-                    if child.find("strong") is None and child.find("span") is None:
-                        child_contents += " " + child.contents[0]
-                house_map["desc:" + tab_title] = child_contents
-            info_table = soup.find("table")
-            if info_table is not None:
-                table_rows = info_table.findAll("tr")
-                for row in table_rows:
-                    row_heading = row.find("th").contents[0]
-                    row_content_soup = row.find("td")
-                    if row_content_soup.find("small") is not None:
-                        #take content from within small tag
-                        row_content = row_content_soup.find("small").contents[0]
-                    else :
-                        row_content = row_content_soup.contents[0]
-                    #The data is NOT formatted the same way as in scrape_non_deleon.
-                    #i.e. "Listed at" vs "price", tabs vs. random house stats
-                    #Must clean after retrieving data
-                    house_map[row_heading] = row_content
-            deleon_houses_map[house_key] = house_map
-            # print(house_key)
+        house_map = {}
+        house_url=house_info[0]
+        house_key=house_info[1]
+        house_subtitle=house_info[2]
+        house_map["status or price"] = house_subtitle
+        r = requests.get(house_url)
+        data = r.text
+        soup = BeautifulSoup(data, "html.parser")
+        for i in range(1, MAX_TABS):
+            potential_tab = soup.find("div", {"id": "tab-id-" + str(i) + "-container"})
+            if potential_tab is None:
+                break
+            tab_title = soup.find("div", {"data-fake-id": "#tab-id-"+str(i)}).contents[0]
+            children = potential_tab.find_all("p")
+            children += potential_tab.find_all("li")
+            child_contents = ""
+            for child in children:
+                if child.find("strong") is None and child.find("span") is None:
+                    child_contents += " " + child.contents[0]
+            house_map["desc:" + tab_title] = child_contents
+        info_table = soup.find("table")
+        if info_table is not None:
+            table_rows = info_table.findAll("tr")
+            for row in table_rows:
+                row_heading = row.find("th").contents[0]
+                row_content_soup = row.find("td")
+                if row_content_soup.find("small") is not None:
+                    #take content from within small tag
+                    row_content = row_content_soup.find("small").contents[0]
+                else:
+                    row_content = row_content_soup.contents[0]
+                #The data is NOT formatted the same way as in scrape_non_deleon.
+                #i.e. "Listed at" vs "price", tabs vs. random house stats
+                #Must clean after retrieving data
+                house_map[row_heading] = row_content
+        deleon_houses_map[house_key] = house_map
     print(json.dumps(deleon_houses_map))
 
 def main():
